@@ -13,6 +13,8 @@ TODO : add EN comments (translate from FR to EN)
 
 TODO : convert into a script and protect from mistakes
 
+TODO : be sure to extract the good data for the sector size (sec_size) as fdisk returns many info related (physical, logical, 1x ...)
+
 ## Auto-shrink
 Auto shrink an Ext4 Linux partition (like GParted do).
 Based on : https://serverfault.com/questions/796758/shrink-partition-to-exactly-fit-the-underlying-filesystem-size/1024871#1024871
