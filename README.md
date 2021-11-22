@@ -2,7 +2,7 @@
 Shrink / Expand a partition automagically without GUI application
 
 # The problem
-Clonezilla restore and surely others can give problem of size when we want to restore. So if I backed up a 100 GB partition which only 20 GB used, I can not restore it on a 40 GB partition. The **auto-shrink.sh** script corrects this before the backup operation. Reversely when the partition is backed up we can expand the partition to fill all the available free space with the **auto-expand.sh** script.
+Clonezilla restore and surely others can give problem of size when we want to restore. So if I backed up a 100 GB partition which only 20 GB used, I can not restore it on a 40 GB partition. The Linux **auto-shrink.sh** script corrects this before the backup operation. Reversely when the partition is backed up we can expand the partition to fill all the available free space with the Linux **auto-expand.sh** script.
 
 # Linux
 TODO : LVM parts (by default on Ubuntu)
@@ -267,7 +267,7 @@ Pass 5: Checking group summary information
 ------------
       122582 files
       
-# Etendre le système de fichiers au maxi
+# Etendre le système de fichiers au maxi pour coller à la partition
 root@CLONEZILLA:~# resize2fs -p $PRT
 resize2fs 1.46.2 (28-Feb-2021)
 Resizing the filesystem on /dev/sda3 to 4882944 (4k) blocks.
