@@ -23,34 +23,54 @@ TODO : exclude all swap file before shrink
 # The future auto-shrink.sh
 PRT=/dev/sda3
 
-
 # partition -> périphérique
-# Avoir en tête que le lien entre une partition son périphérique n'est pas forcément aussi simple que /dev/sda1 => /dev/sda ; 
-#  penser aux partitions QCOW2 (ex : /dev/nbd0p1 qui est une partition du périphérique /dev/nbd0) et si la racine n'est pas /dev/ (je n'ai pas d'exemple pour étayer, mais ça me semble possible avec chroot)
+# Avoir en tête que le lien entre une partition son périphérique n'est 
+#  pas forcément aussi simple que /dev/sda1 => /dev/sda ; 
+#  penser aux partitions QCOW2 (ex : /dev/nbd0p1 qui est une partition 
+#  du périphérique /dev/nbd0) et si la racine n'est pas /dev/ (je n'ai 
+#  pas d'exemple pour étayer, mais ça me semble possible avec chroot)
 #
+# Explications :
 #  $( bloc1 )$( bloc2 ) : concaténation de 2 blocs de sous commandes
-#   $( ... ) : (bloc1) trouve la racine (ici : /dev/)
-#   $( ... ) : (bloc2) trouve le périphérique suivi de | et du pon (ici : /dev/sda|3)
-#    lsblk ... : -n (pas de ligne de titre), -t (affichage arborescent => liens de parentalité), -o (pour afficher juste le nom)
+#   $( bloc1 ) : trouve la racine (ici : /dev/)
+#   $( bloc2 ) : trouve le périphérique suivi de | et du pon 
+#                ici : /dev/sda|3
+#    lsblk ... : -n (pas de ligne de titre), -t (affichage arborescent 
+#                => liens de parentalité), -o (affiche juste le nom)
 #    tac : inverse l'arborescence (le parent est après l'enfant)
-#    awk ... : si ligne fini par partition cherchée (voir dessous) le prochain parent (ce qui est constitué que de chiffres et de lettres) sera le device cherché ; 
-#              de plus on mémorise le numéro d'ordre de partition (pon) qu'on précède de | pour délimiter (voir remarque dessous)
-#     $( ... ) : (dans le awk) extrait le nom de la partition derrière le dernier slash / ; donc on cherche ce qui termine par un NON slash, 1 ou plusieurs fois (sda, etc.)
+#    awk ... : si ligne fini par partition cherchée (voir dessous) 
+#              le prochain parent (ce qui est constitué que de chiffres 
+#              et de lettres) sera le device cherché ; de plus on 
+#              mémorise le numéro d'ordre de partition (pon) qu'on 
+#              précède de | pour délimiter (voir remarque dessous)
+#     $( ... ) : [dans le awk] extrait le nom de la partition derrière 
+#                le dernier slash / ; donc on cherche ce qui termine par
+#                un NON slash, 1 ou plusieurs fois (sda, etc.)
 #
-# Remarque : les numéros de partition dans le nom peuvent de pas correspondre avec le numéro d'ordre de la partition à traiter (partition ordered number) ; 
-#  j'ai déjà vu une arborescence qui donne /dev/sda et ses partitions /dev/sda1 et /dev/sda5 (mais pas les intermédiaires) => pour traiter sda5 il faut considérer le numéro d'ordre de partition 2 (c'est la 2ème partition)
+# Remarque : les numéros de partition dans le nom peuvent de pas 
+#            correspondre avec le numéro d'ordre de la partition à 
+#            traiter (partition ordered number) ; j'ai déjà vu une 
+#            arborescence qui donne /dev/sda et ses partitions /dev/sda1
+#            et /dev/sda5 (mais pas les intermédiaires) => pour traiter 
+#            sda5 il faut considérer le numéro d'ordre de partition 2 
+#            (c'est la 2ème partition)
 #
-# Visuellement si je recherche le périphérique de la partition sda3, ça donne :
-# root@CLONEZILLA:~# lsblk -n -t -o NAME | tac
+# Visuellement si je recherche le périphérique de la partition sda3 :
+# root@CZ-BKP:~# lsblk -n -t -o NAME | tac
 # sr0
 # └─sda4
-# ├─sda3      <- partition recherchée et NR = pon = 3
+# ├─sda3      <- searched part and NR = pon = 3
 # ├─sda2
 # ├─sda1
-# sda         <- périphérique correspondant (parent) et NR - pon = 6 - 3 = 3  => 3eme partition
+# sda         <- parent device and NR - pon = 6 - 3 = 3  => part n°3
 # loop0
-# 
-root@CLONEZILLA:~# root_dn_pon=$( echo $PRT | grep -Eo ^/.+/ )'|'$( lsblk -nto NAME | tac | awk '/'$( echo $PRT | grep -Eo [^/]+$ )'$/ { ok = 1 ; pon = NR ; next } ok && /^[a-z0-9]+$/ { print $0 "|" ( NR - pon ) ; exit }' )
+#
+root@CLONEZILLA:~# root_dn_pon=$(\
+ echo $PRT | grep -Eo ^/.+/ )'|'$( lsblk -nto NAME | tac | \
+ awk '/'$( \
+  echo $PRT | grep -Eo [^/]+$\
+ )'$/ { ok = 1 ; pon = NR ; next } \
+ ok && /^[a-z0-9]+$/ { print $0 "|" ( NR - pon ) ; exit }' )
 root@CLONEZILLA:~# dn=$( echo $root_dn_pon | cut -d '|' -f 2 )
 root@CLONEZILLA:~# dev=$( echo $root_dn_pon | cut -d '|' -f 1 )$dn
 root@CLONEZILLA:~# pon=$( echo $root_dn_pon | cut -d '|' -f 3 )
@@ -116,9 +136,15 @@ Filesystem 1K-blocks Used Available Use% Mounted on
 
 # Calculs de réduction de la partition
 root@CLONEZILLA:~# dumpfs=$( dumpe2fs -h $PRT 2> /dev/null )
-root@CLONEZILLA:~# block_count=$( echo -e "$dumpfs" | grep "^Block count:" | cut -d ':' -f 2 | tr -d ' ' )
-root@CLONEZILLA:~# block_size=$( echo -e "$dumpfs" | grep "^Block size:" | cut -d ':' -f 2 | tr -d ' ' )
-root@CLONEZILLA:~# prt_mini_size=$( echo "( $block_count * $block_size ) / $sec_size + $prt_start + 10" | bc )
+root@CLONEZILLA:~# block_count=$(\
+ echo -e "$dumpfs" | grep "^Block count:" | cut -d ':' -f 2 | tr -d ' '\
+ )
+root@CLONEZILLA:~# block_size=$(\
+ echo -e "$dumpfs" | grep "^Block size:" | cut -d ':' -f 2 | tr -d ' '\
+ )
+root@CLONEZILLA:~# prt_mini_size=$(\
+ echo "( $block_count * $block_size ) / $sec_size + $prt_start + 10" \
+ | bc )
 
 # En NON interactif : réduire la partition au minimum
 # https://stackoverflow.com/questions/52509644/how-do-i-get-over-parted-confirmation-request-in-a-script
@@ -133,7 +159,8 @@ EOF
 # => OK en interactif, je n'ai rien cassé et le disque est rempli à 100%
 # :D
 
-# A priori nécessaire (je n'ai plus le message mais il y avait un warning de GParted concernant le montage et des blocks (la FAT ?) )
+# A priori nécessaire (je n'ai plus le message mais il y avait 
+#  un warning de GParted concernant le montage et des blocs (FAT ?) )
 root@CLONEZILLA:~# e2fsck -f -y -v -C 0 $PRT                                  
 e2fsck 1.46.2 (28-Feb-2021)
 Pass 1: Checking inodes, blocks, and sizes
@@ -170,7 +197,12 @@ Auto expand an Ext4 Linux partition (like GParted do).
 # The future auto-expand.sh
 PRT=/dev/sda3
 
-root@CLONEZILLA:~# root_dn_pon=$( echo $PRT | grep -Eo ^/.+/ )'|'$( lsblk -nto NAME | tac | awk '/'$( echo $PRT | grep -Eo [^/]+$ )'$/ { ok = 1 ; pon = NR ; next } ok && /^[a-z0-9]+$/ { print $0 "|" ( NR - pon ) ; exit }' )
+root@CLONEZILLA:~# root_dn_pon=$(\
+ echo $PRT | grep -Eo ^/.+/ )'|'$( lsblk -nto NAME | tac | \
+ awk '/'$(\
+  echo $PRT | grep -Eo [^/]+$\
+ )'$/ { ok = 1 ; pon = NR ; next } \
+ ok && /^[a-z0-9]+$/ { print $0 "|" ( NR - pon ) ; exit }' )
 root@CLONEZILLA:~# dn=$( echo $root_dn_pon | cut -d '|' -f 2 )
 root@CLONEZILLA:~# dev=$( echo $root_dn_pon | cut -d '|' -f 1 )$dn
 root@CLONEZILLA:~# pon=$( echo $root_dn_pon | cut -d '|' -f 3 )
@@ -196,16 +228,14 @@ Device     Boot    Start       End  Sectors  Size Id Type
 /dev/sda4       80023552 125829119 45805568 21,8G 83 Linux
 # => partition sda4 (n+1) débute en 80023552
 # => partition n termine au maximum en 80023552 - 1 = 80023551
-# => partition sda4 (n+1) débute en 80023552
-# => partition n termine au maximum en 80023552 - 1 = 80023551
 
-# Augmenter partition au maximum de l'espace disponible qui lui fait suite
+# Augmenter partition au maxi dans espace disponible qui lui fait suite
 #  partx -u met à jour la partition modifiée
 # http://karelzak.blogspot.com/2015/05/resize-by-sfdisk.html
 root@CLONEZILLA:~# echo ", +" | sfdisk --force -N $pon $dev
 root@CLONEZILLA:~# partx -u $PRT
 
-# Vérification obligatoire après redimensionnement (demandé par resize2fs)
+# Vérification obligatoire après expansion (demandé par resize2fs)
 root@CLONEZILLA:~# e2fsck -f -y -v -C 0 $PRT
 e2fsck 1.46.2 (28-Feb-2021)
 Pass 1: Checking inodes, blocks, and sizes
@@ -233,8 +263,8 @@ Pass 5: Checking group summary information
            0 sockets
 ------------
       122582 files
-
-# Redimensionner le système au maxi
+      
+# Etendre le système de fichiers au maxi
 root@CLONEZILLA:~# resize2fs -p $PRT
 resize2fs 1.46.2 (28-Feb-2021)
 Resizing the filesystem on /dev/sda3 to 4882944 (4k) blocks.
