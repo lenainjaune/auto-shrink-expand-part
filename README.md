@@ -85,8 +85,9 @@ root@CLONEZILLA:~# sec_size=$( cat /sys/block/$dn/queue/hw_sector_size )
 root@CLONEZILLA:~# prt_start=$( partx -g -o START $PRT )
 # => 40960000
 
-root@CLONEZILLA:~# fdisk -l $dev | grep -E "^(Sector size|Device|$PRT)
+root@CLONEZILLA:~# fdisk -l $dev | grep -E "^(Sector size|$PRT)
 Sector size (logical/physical): 512 bytes / 512 bytes
+Device     Boot    Start       End  Sectors  Size Id Type
 /dev/sda3       40960000  80023551 39063552 18,6G 83 Linux
 # => taille d'un secteur : 512 octets
 # => début de la partition 3 (Debian Buster) : 40960000
