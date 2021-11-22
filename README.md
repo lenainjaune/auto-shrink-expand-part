@@ -78,19 +78,19 @@ root@CLONEZILLA:~# dev=$( echo $root_dn_pon | cut -d '|' -f 1 )$dn
 root@CLONEZILLA:~# pon=$( echo $root_dn_pon | cut -d '|' -f 3 )
 # => /dev/sda sda 3
 
-# https://unix.stackexchange.com/questions/2668/finding-the-sector-size-of-a-partition
-root@CLONEZILLA:~# sec_size=$( cat /sys/block/$dn/queue/hw_sector_size )
-# => 512
-
-root@CLONEZILLA:~# prt_start=$( partx -g -o START $PRT )
-# => 40960000
-
 root@CLONEZILLA:~# fdisk -l $dev | grep -E "^(Sector size|$PRT)
 Sector size (logical/physical): 512 bytes / 512 bytes
 Device     Boot    Start       End  Sectors  Size Id Type
 /dev/sda3       40960000  80023551 39063552 18,6G 83 Linux
 # => taille d'un secteur : 512 octets
 # => début de la partition 3 (Debian Buster) : 40960000
+
+# https://unix.stackexchange.com/questions/2668/finding-the-sector-size-of-a-partition
+root@CLONEZILLA:~# sec_size=$( cat /sys/block/$dn/queue/hw_sector_size )
+# => 512
+
+root@CLONEZILLA:~# prt_start=$( partx -g -o START $PRT )
+# => 40960000
 
 root@CLONEZILLA:~# mount $PRT /mnt/ && df $PRT && umount $PRT
 Filesystem 1K-blocks Used Available Use% Mounted on
@@ -137,7 +137,7 @@ Filesystem 1K-blocks Used Available Use% Mounted on
 /dev/sda3 4158788 3970592 0 100% /mnt
 # => 100% utilisé, plus d'espace libre
 
-# Calculs de réduction de la partition
+# Calculs de réduction de la partition pour coller au système de fichiers
 root@CLONEZILLA:~# dumpfs=$( dumpe2fs -h $PRT 2> /dev/null )
 root@CLONEZILLA:~# block_count=$(\
  echo -e "$dumpfs" | grep "^Block count:" | cut -d ':' -f 2 | tr -d ' '\
