@@ -1,7 +1,7 @@
 # auto-shrink-expand-part
 Shrink / Expand a partition automagically without GUI application
 
-TODO : prendre en compte la possibilité de déplacer (restauration d'un disque source plus petit que le disque cible avec partitions system+swap au final on aura system+swap+libre et on veut system+libre+swap soit déplacer la partition swap à la fin qui souvent est une partition logique dans une partition étendue) : voir [ici](https://unix.stackexchange.com/questions/584078/move-partition-only-using-cli-tools-at-same-disk)
+TODO : prendre en compte la possibilité de déplacer (restauration d'un disque source plus petit que le disque cible avec partitions system+swap au final on aura system+swap+libre alors qu'on voudrait system+libre+swap pour pouvoir agrandir system dans l'espace libre, soit déplacer la partition swap à la fin qui souvent est une partition logique dans une partition étendue) : voir [ici](https://unix.stackexchange.com/questions/584078/move-partition-only-using-cli-tools-at-same-disk)
 
 # The problem
 Clonezilla restore and surely others can give problem of size when we want to restore. So if I backed up a 100 GB partition which only 20 GB used, I can not restore it on a 40 GB partition. The Linux **auto-shrink.sh** script corrects this before the backup operation. Reversely when the partition is backed up we can expand the partition to fill all the available free space with the Linux **auto-expand.sh** script.
