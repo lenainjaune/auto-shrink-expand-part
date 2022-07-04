@@ -3,6 +3,12 @@ Shrink / Expand a partition automagically without GUI application
 
 TODO : prendre en compte la possibilité de déplacer (restauration d'un disque source plus petit que le disque cible avec partitions system+swap au final on aura system+swap+libre alors qu'on voudrait system+libre+swap pour pouvoir agrandir system dans l'espace libre, soit déplacer la partition swap à la fin qui souvent est une partition logique dans une partition étendue) : voir [ici](https://unix.stackexchange.com/questions/584078/move-partition-only-using-cli-tools-at-same-disk)
 
+# NTFS Mount problem
+En attendant de le mettre au bon endroit.
+
+Si "The disk contains an unclean file system" => https://askubuntu.com/questions/462381/cant-mount-ntfs-drive-the-disk-contains-an-unclean-file-system
+Si "hibernated, refuses to mount" => https://unix.stackexchange.com/questions/337152/cant-mount-windows-partition-in-linux-hibernated-refuses-to-mount/347319#347319
+
 # The problem
 Clonezilla restore and surely others can give problem of size when we want to restore. So if I backed up a 100 GB partition which only 20 GB used, I can not restore it on a 40 GB partition. The Linux **auto-shrink.sh** script corrects this before the backup operation. Reversely when the partition is backed up we can expand the partition to fill all the available free space with the Linux **auto-expand.sh** script.
 
