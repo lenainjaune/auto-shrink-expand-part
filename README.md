@@ -6,7 +6,7 @@ TODO : prendre en compte la possibilité de déplacer (restauration d'un disque 
 # NTFS Mount problem
 En attendant de le mettre au bon endroit.
 
-Si "The disk contains an unclean file system" (source)[https://sourceforge.net/p/clonezilla/discussion/Help/thread/a0203604/]
+Si "The disk contains an unclean file system" [source](https://sourceforge.net/p/clonezilla/discussion/Help/thread/a0203604/)
 
 ```sudo ntfsfix -d $DEV```
 
