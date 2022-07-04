@@ -7,9 +7,11 @@ TODO : prendre en compte la possibilité de déplacer (restauration d'un disque 
 En attendant de le mettre au bon endroit.
 
 Si "The disk contains an unclean file system" => https://askubuntu.com/questions/462381/cant-mount-ntfs-drive-the-disk-contains-an-unclean-file-system
+
 ```sudo ntfsfix -d $DEV```
 
 Si "hibernated, refuses to mount" => https://unix.stackexchange.com/questions/337152/cant-mount-windows-partition-in-linux-hibernated-refuses-to-mount/347319#347319
+
 ```sudo mount -t ntfs-3g -o remove_hiberfile $DEV $MOUNT_PATH```
 
 # The problem
