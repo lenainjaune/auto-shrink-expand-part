@@ -91,7 +91,7 @@ root@CLONEZILLA:~# dev=$( echo $root_dn_pon | cut -d '|' -f 1 )$dn
 root@CLONEZILLA:~# pon=$( echo $root_dn_pon | cut -d '|' -f 3 )
 # => /dev/sda sda 3
 
-root@CLONEZILLA:~# fdisk -l $dev | grep -E "^(Sector size|$PRT)
+root@CLONEZILLA:~# fdisk -l $dev | grep -E "^(Sector size|$PRT)"
 Sector size (logical/physical): 512 bytes / 512 bytes
 Device     Boot    Start       End  Sectors  Size Id Type
 /dev/sda3       40960000  80023551 39063552 18,6G 83 Linux
