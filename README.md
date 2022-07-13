@@ -39,7 +39,7 @@ TODO : exclude all swap file before shrink
 PRT=/dev/sda3
 
 # partition -> périphérique
-# Avoir en tête que le lien entre une partition son périphérique n'est 
+# Avoir en tête que le lien entre une partition et son périphérique n'est 
 #  pas forcément aussi simple que /dev/sda1 => /dev/sda ; 
 #  penser aux partitions QCOW2 (ex : /dev/nbd0p1 qui est une partition 
 #  du périphérique /dev/nbd0) et si la racine n'est pas /dev/ (je n'ai 
