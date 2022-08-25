@@ -8,7 +8,7 @@ En attendant de le mettre au bon endroit.
 
 Si "The disk contains an unclean file system" ([source](https://sourceforge.net/p/clonezilla/discussion/Help/thread/a0203604/))
 
-```sudo ntfsfix -d $DEV```
+```sudo ntfsfix -d $PART```
 
 Si "hibernated, refuses to mount" ([source](https://unix.stackexchange.com/questions/337152/cant-mount-windows-partition-in-linux-hibernated-refuses-to-mount/347319#347319))
 
