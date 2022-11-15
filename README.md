@@ -28,6 +28,25 @@ TODO : convert into a script and protect from mistakes
 
 TODO : be sure to extract the good data for the sector size (sec_size) as fdisk returns many info related (physical, logical, 1x ...)
 
+## Shrink avec GParted avec gestion de trou
+TODO : automatiser
+
+Situation : un vHD de 20 GB (system+swap) dont le système est Debian Bullseye formaté en Ext4 et qui est occupé à 5G/20GB
+
+=> depuis le LiveISO GParted (gparted-live-1.3.1-1-i686.iso)
+```
+BBBbbbbbbESSSSe   initial : vHD de 20 GB (system+swap) dont system occupé à 5G/20GB
+
+BBB______ESSSSe   réduire system à 10GB => trou entre partitions
+
+BBBEEEEEEESSSSe   étendre partition étendue qui contient la partition de SWAP pour ne pas laisser de trou
+
+BBBESSSSeeeeeee   déplacer partition de SWAP au début de la partition étendue (*)
+
+BBBESSSSe______   réduire partition étendue à la taille de la partition de SWAP => trou à la fin
+```
+(*) déplacer la partition de SWAP affiche un avertissement comme quoi le système ne sera plus bootable (un swap bootable ???)
+
 ## Auto-shrink
 Auto shrink an Ext4 Linux partition (like GParted do).
 Based on : https://serverfault.com/questions/796758/shrink-partition-to-exactly-fit-the-underlying-filesystem-size/1024871#1024871
